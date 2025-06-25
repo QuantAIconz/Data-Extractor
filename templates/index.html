@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Extractor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: url('/static/Public/bg-image.png') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+        }
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 32px 48px 0 48px;
+        }
+        .logo-group {
+            display: flex;
+            align-items: center;
+        }
+        .logo {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin-right: 16px;
+            object-fit: contain;
+            box-shadow: 0 2px 12px rgba(44,62,80,0.08);
+        }
+        .brand-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.18);
+        }
+        .how-btn, .start-btn {
+            text-decoration: none !important;
+        }
+        .how-btn {
+            font-size: 1.1rem;
+            padding: 10px 28px;
+            border-radius: 8px;
+            background: #0099ff;
+            color: #fff;
+            border: none;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,153,255,0.12);
+            transition: background 0.2s, color 0.2s;
+        }
+        .how-btn:hover {
+            background: #005ecb;
+            color: #fff;
+        }
+        .main-content {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .content-card {
+            background: rgba(20, 20, 40, 0.85);
+            border-radius: 24px;
+            box-shadow: 0 8px 48px rgba(0,0,0,0.25);
+            padding: 48px 32px 32px 32px;
+            max-width: 900px;
+            width: 100%;
+            margin: 80px auto 40px auto;
+        }
+        label, .form-text, .dashboard-link, h1, h3, .file-info, .alert, .btn, .progress, .file-results {
+            color: #fff !important;
+        }
+        input, select, .form-control, .form-select {
+            background: rgba(255,255,255,0.9) !important;
+            color: #222 !important;
+            border: 1px solid #444 !important;
+        }
+        .btn-primary, .btn-success {
+            color: #fff !important;
+        }
+        /* How it works modal styles */
+        .how-modal-bg {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.65);
+            align-items: center;
+            justify-content: center;
+        }
+        .how-modal-bg.active {
+            display: flex;
+        }
+        .how-modal {
+            background: linear-gradient(135deg, #232347 0%, #2d2347 100%);
+            color: #fff;
+            border-radius: 24px;
+            max-width: 700px;
+            width: 95%;
+            padding: 44px 38px 32px 38px;
+            box-shadow: 0 8px 48px rgba(0,0,0,0.25);
+            position: relative;
+        }
+        .how-modal h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .how-modal hr {
+            border-top: 1px solid #444;
+            margin: 24px 0;
+        }
+        .how-modal .section-title {
+            color: #7ecbff;
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .how-modal .section-desc {
+            color: #e0e0e0;
+            font-size: 1.05rem;
+            margin-bottom: 18px;
+        }
+        .how-modal .how-steps {
+            margin-top: 12px;
+        }
+        .how-modal .how-step {
+            margin-bottom: 18px;
+        }
+        .how-modal .how-step-title {
+            color: #ff4fa3;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+        .how-modal .how-step-num {
+            display: inline-block;
+            background: linear-gradient(90deg, #3a8bfd 0%, #a259f7 100%);
+            color: #fff;
+            font-weight: 700;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            text-align: center;
+            line-height: 28px;
+            margin-right: 10px;
+        }
+        .how-modal .got-it-btn {
+            margin-top: 24px;
+            float: right;
+            font-size: 1.1rem;
+            padding: 10px 32px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(90deg, #3a8bfd 0%, #a259f7 100%);
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(58,139,253,0.18);
+            transition: background 0.2s, color 0.2s;
+        }
+        .how-modal .got-it-btn:hover {
+            background: linear-gradient(90deg, #2b6edc 0%, #7d3fc7 100%);
+            color: #fff;
+        }
+        @media (max-width: 700px) {
+            .top-bar {
+                padding: 18px 10px 0 10px;
+            }
+            .logo {
+                width: 80px;
+                height: 80px;
+            }
+            .brand-name {
+                font-size: 1.2rem;
+            }
+            .how-modal {
+                padding: 18px 6px 18px 6px;
+            }
+        }
+        .result-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .valid {
+            border-left: 5px solid #28a745;
+        }
+        .invalid {
+            border-left: 5px solid #dc3545;
+        }
+        .dashboard-link {
+            margin-top: 20px;
+        }
+        .file-info {
+            background: rgba(30, 30, 50, 0.92) !important;
+            color: #fff !important;
+            border-radius: 14px;
+            padding: 18px 20px 10px 20px;
+            margin-bottom: 18px;
+            font-weight: 600;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+        }
+        .file-info h5, .file-info p {
+            color: #fff !important;
+            margin-bottom: 6px;
+        }
+        .file-info p {
+            color: #7ecbff !important;
+            font-weight: 500;
+        }
+        .progress {
+            margin-top: 10px;
+        }
+        .file-results {
+            margin-top: 15px;
+            border-top: 2px solid #dee2e6;
+            padding-top: 15px;
+        }
+        .results-header {
+            color: #fff !important;
+            font-size: 2rem;
+            font-weight: 700;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.18);
+            margin-bottom: 24px;
+        }
+        .download-link {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <div class="logo-group">
+            <img src="/static/Public/quantai_logo.png" alt="QuantAI Logo" class="logo">
+            <span class="brand-name">QuantAI</span>
+        </div>
+        <a href="#how-it-works" class="how-btn" id="howItWorksBtn">How it works</a>
+    </div>
+    <div class="main-content">
+        <div class="content-card">
+            <div class="container mt-5 pt-5">
+                <h1 class="mb-4" style="color:#fff; text-shadow:0 2px 12px rgba(0,0,0,0.18);">Data Extractor</h1>
+                <div class="row">
+                    <div class="col-md-6">
+                        <form id="uploadForm" class="mb-4">
+                            <div class="mb-3">
+                                <label for="files" class="form-label">Select PDF Files (Multiple files supported)</label>
+                                <input type="file" class="form-control" id="files" name="files" accept=".pdf" multiple required>
+                                <div class="form-text">You can select multiple PDF files by holding Ctrl (or Cmd on Mac) while clicking</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="patternType" class="form-label">Select Data Type</label>
+                                <select class="form-select" id="patternType" name="pattern_type" required>
+                                    <option value="full_name">Full Name</option>
+                                    <option value="date_of_birth">Date of Birth</option>
+                                    <option value="mobile_number">Mobile Number</option>
+                                    <option value="telephone_number">Telephone Number</option>
+                                    <option value="email_address">Email Address</option>
+                                    <option value="aadhar_number">Aadhar Number</option>
+                                    <option value="pan_number">PAN Number</option>
+                                    <option value="passport_number">Passport Number</option>
+                                    <option value="voter_id_number">Voter ID Number</option>
+                                    <option value="driving_license_number">Driving License Number</option>
+                                    <option value="bank_account_number">Bank Account Number</option>
+                                    <option value="credit_debit_card_number">Credit/Debit Card Number</option>
+                                    <option value="ip_address">IP Address</option>
+                                    <option value="custom_search">Custom Search</option>
+                                </select>
+                            </div>
+                            <div class="mb-3" id="customSearchDiv" style="display: none;">
+                                <label for="searchTerm" class="form-label">Search Term</label>
+                                <input type="text" class="form-control" id="searchTerm" name="search_term">
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">Extract Data</button>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="results" class="mt-4">
+                            <h3 class="results-header">Results</h3>
+                            <div id="progressContainer" style="display: none;">
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <small class="text-muted">Processing files...</small>
+                            </div>
+                            <div id="resultList"></div>
+                            <div id="dashboardLink" class="dashboard-link" style="display: none;">
+                                <a href="#" class="btn btn-success" target="_blank">View Dashboard</a>
+                            </div>
+                            <div id="downloadLink" class="download-link">
+                                <a href="/download" class="btn btn-info" download>Download CSV</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- How it works modal -->
+    <div class="how-modal-bg" id="howModalBg">
+        <div class="how-modal">
+            <h2>How It Works</h2>
+            <div class="section-title">Background Process</div>
+            <div class="section-desc">
+                Our system uses advanced AI and natural language processing to extract structured data from your PDF documents. The AI scans each page, detects and validates information such as names, emails, phone numbers, and more, and presents it in a user-friendly format.<br>
+                The system supports a wide range of document types and is designed to handle both single and multiple PDF uploads efficiently.
+            </div>
+            <hr>
+            <div class="section-title" style="color:#ff4fa3;">How to Use</div>
+            <div class="how-steps">
+                <div class="how-step">
+                    <span class="how-step-num">1</span>
+                    <span class="how-step-title">Upload PDF(s)</span><br>
+                    Select and upload one or more PDF files from your device. The system supports batch processing for convenience.
+                </div>
+                <div class="how-step">
+                    <span class="how-step-num">2</span>
+                    <span class="how-step-title">AI Extraction</span><br>
+                    Our AI engine analyzes the content of your PDFs, extracting and validating structured data such as names, emails, phone numbers, and more.
+                </div>
+                <div class="how-step">
+                    <span class="how-step-num">3</span>
+                    <span class="how-step-title">Download Results</span><br>
+                    After extraction, you can download the results as a CSV file for further use.
+                </div>
+                <div class="how-step">
+                    <span class="how-step-num">4</span>
+                    <span class="how-step-title">View Dashboard</span><br>
+                    Access the interactive dashboard to visualize and analyze the extracted data.
+                </div>
+            </div>
+            <button class="got-it-btn" id="gotItBtn">Got it!</button>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('patternType').addEventListener('change', function() {
+            const customSearchDiv = document.getElementById('customSearchDiv');
+            customSearchDiv.style.display = this.value === 'custom_search' ? 'block' : 'none';
+        });
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const files = document.getElementById('files').files;
+            const patternType = document.getElementById('patternType').value;
+            const searchTerm = document.getElementById('searchTerm').value;
+            const resultList = document.getElementById('resultList');
+            const dashboardLink = document.getElementById('dashboardLink');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = progressContainer.querySelector('.progress-bar');
+            const submitBtn = document.getElementById('submitBtn');
+            if (files.length === 0) {
+                alert('Please select at least one PDF file');
+                return;
+            }
+            // Show progress and disable submit button
+            progressContainer.style.display = 'block';
+            submitBtn.disabled = true;
+            resultList.innerHTML = '';
+            dashboardLink.style.display = 'none';
+            document.getElementById('downloadLink').style.display = 'none';
+            try {
+                // Use batch upload for multiple files
+                if (files.length > 1) {
+                    // Create form data for batch upload
+                    const formData = new FormData();
+                    for (let i = 0; i < files.length; i++) {
+                        formData.append('files', files[i]);
+                    }
+                    formData.append('pattern_type', patternType);
+                    if (searchTerm) {
+                        formData.append('search_term', searchTerm);
+                    }
+                    // Update progress to show processing
+                    progressBar.style.width = '50%';
+                    progressBar.textContent = 'Processing files...';
+                    // Process all files at once
+                    const response = await fetch('/upload-multiple', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        // Show summary first
+                        const summaryDiv = document.createElement('div');
+                        summaryDiv.className = 'alert alert-info';
+                        summaryDiv.innerHTML = `
+                            <strong>Batch Processing Complete!</strong><br>
+                            Processed ${data.successful_files} out of ${data.total_files} files<br>
+                            Total items found: ${data.data.length}
+                            ${data.failed_files > 0 ? `<br>Failed files: ${data.failed_files}` : ''}
+                        `;
+                        resultList.appendChild(summaryDiv);
+                        // Show errors if any
+                        if (data.errors && data.errors.length > 0) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'alert alert-warning';
+                            errorDiv.innerHTML = '<strong>Errors:</strong><br>';
+                            data.errors.forEach(error => {
+                                errorDiv.innerHTML += `• ${error.filename}: ${error.error}<br>`;
+                            });
+                            resultList.appendChild(errorDiv);
+                        }
+                        // Group results by file
+                        const resultsByFile = {};
+                        data.data.forEach(item => {
+                            if (!resultsByFile[item.filename]) {
+                                resultsByFile[item.filename] = [];
+                            }
+                            resultsByFile[item.filename].push(item);
+                        });
+                        // Display results grouped by file
+                        Object.keys(resultsByFile).forEach(filename => {
+                            const fileResults = resultsByFile[filename];
+                            // Add file info
+                            const fileInfo = document.createElement('div');
+                            fileInfo.className = 'file-info';
+                            fileInfo.innerHTML = `
+                                <h5>📄 ${filename}</h5>
+                                <p>Found ${fileResults.length} items</p>
+                            `;
+                            resultList.appendChild(fileInfo);
+                            
+                            // Add results for this file
+                            const fileResultsDiv = document.createElement('div');
+                            fileResultsDiv.className = 'file-results';
+                            
+                            if (fileResults.length === 0) {
+                                fileResultsDiv.innerHTML = '<p class="text-muted">No data found in this file.</p>';
+                            } else {
+                                fileResults.forEach(item => {
+                                    const div = document.createElement('div');
+                                    div.className = `result-item ${item.status === 'correct' ? 'valid' : 'invalid'}`;
+                                    div.innerHTML = `
+                                        <strong>Value:</strong> ${item.value}<br>
+                                        <strong>Page:</strong> ${item.page}<br>
+                                        <strong>Status:</strong> ${item.status}<br>
+                                        ${item.validation_message ? `<strong>Message:</strong> ${item.validation_message}` : ''}
+                                    `;
+                                    fileResultsDiv.appendChild(div);
+                                });
+                            }
+                            
+                            resultList.appendChild(fileResultsDiv);
+                        });
+                        
+                        // Show dashboard link if any data was found
+                        if (data.data.length > 0) {
+                            dashboardLink.style.display = 'block';
+                            dashboardLink.querySelector('a').href = data.dashboard_url;
+                            document.getElementById('downloadLink').style.display = 'block';
+                        }
+                        
+                    } else {
+                        resultList.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    }
+                    
+                } else {
+                    // Single file upload (use existing logic)
+                    const file = files[0];
+                    
+                    // Update progress
+                    progressBar.style.width = '100%';
+                    progressBar.textContent = 'Processing file...';
+                    
+                    // Create form data for this file
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('pattern_type', patternType);
+                    if (searchTerm) {
+                        formData.append('search_term', searchTerm);
+                    }
+
+                    // Process this file
+                    const response = await fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Add file info to results
+                        const fileInfo = document.createElement('div');
+                        fileInfo.className = 'file-info';
+                        fileInfo.innerHTML = `
+                            <h5>📄 ${file.name}</h5>
+                            <p>Found ${data.data.length} items</p>
+                        `;
+                        resultList.appendChild(fileInfo);
+                        
+                        // Add results for this file
+                        const fileResults = document.createElement('div');
+                        fileResults.className = 'file-results';
+                        
+                        if (data.data.length === 0) {
+                            fileResults.innerHTML = '<p class="text-muted">No data found in this file.</p>';
+                        } else {
+                            data.data.forEach(item => {
+                                const div = document.createElement('div');
+                                div.className = `result-item ${item.status === 'correct' ? 'valid' : 'invalid'}`;
+                                div.innerHTML = `
+                                    <strong>Value:</strong> ${item.value}<br>
+                                    <strong>Page:</strong> ${item.page}<br>
+                                    <strong>Status:</strong> ${item.status}<br>
+                                    ${item.validation_message ? `<strong>Message:</strong> ${item.validation_message}` : ''}
+                                `;
+                                fileResults.appendChild(div);
+                            });
+                        }
+                        
+                        resultList.appendChild(fileResults);
+                        
+                        // Show dashboard link if any data was found
+                        if (data.data.length > 0) {
+                            dashboardLink.style.display = 'block';
+                            dashboardLink.querySelector('a').href = data.dashboard_url;
+                            document.getElementById('downloadLink').style.display = 'block';
+                        }
+                        
+                    } else {
+                        // Show error for this file
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'alert alert-danger';
+                        errorDiv.innerHTML = `
+                            <strong>Error processing ${file.name}:</strong> ${data.error}
+                        `;
+                        resultList.appendChild(errorDiv);
+                    }
+                }
+                
+            } catch (error) {
+                resultList.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            } finally {
+                // Hide progress and re-enable submit button
+                progressContainer.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+        // Modal open/close logic for How it works
+        document.getElementById('howItWorksBtn').onclick = function(e) {
+            e.preventDefault();
+            document.getElementById('howModalBg').classList.add('active');
+        };
+        document.getElementById('gotItBtn').onclick = function() {
+            document.getElementById('howModalBg').classList.remove('active');
+        };
+        // Optional: close modal on background click
+        document.getElementById('howModalBg').onclick = function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+            }
+        };
+    </script>
+</body>
+
+</html>

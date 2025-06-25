@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Extraction Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+        }
+        .dashboard-card {
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        .data-table {
+            margin-top: 20px;
+        }
+        .valid-row {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+        .invalid-row {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        .data-table-fixed-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 600px;
+            height: 350px;
+            z-index: 1050;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+        }
+        .data-table-fixed {
+            margin: 0;
+            width: 100%;
+            border-collapse: separate;
+        }
+        .data-table-fixed thead th {
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            z-index: 2;
+        }
+        .data-table-fixed-body {
+            display: block;
+            max-height: 250px;
+            overflow-y: auto;
+            width: 100%;
+        }
+        .data-table-fixed thead, .data-table-fixed tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+        .data-table-fixed tbody {
+            display: block;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <h1 class="mb-4">Data Extraction Dashboard</h1>
+        
+        <div class="row">
+            <!-- Summary Cards -->
+            <div class="col-md-3">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Extractions</h5>
+                        <h2 class="card-text" id="totalExtractions">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Valid Data</h5>
+                        <h2 class="card-text text-success" id="validData">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Invalid Data</h5>
+                        <h2 class="card-text text-danger" id="invalidData">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Success Rate</h5>
+                        <h2 class="card-text" id="successRate">0%</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <!-- Charts -->
+            <div class="col-md-6">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Data Distribution</h5>
+                        <div class="chart-container">
+                            <canvas id="dataDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Page Distribution</h5>
+                        <div class="chart-container">
+                            <canvas id="pageDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table (Fixed Position) -->
+        <div class="data-table-fixed-container">
+            <div class="card-body p-2">
+                <h5 class="card-title">Extracted Data</h5>
+                <div style="height: 290px;">
+                    <table class="table table-hover data-table-fixed">
+                        <thead>
+                            <tr>
+                                <th>Value</th>
+                                <th>Page</th>
+                                <th>Status</th>
+                                <th>Validation Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody" class="data-table-fixed-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script>
+        // Initialize charts
+        const dataDistributionCtx = document.getElementById('dataDistributionChart').getContext('2d');
+        const pageDistributionCtx = document.getElementById('pageDistributionChart').getContext('2d');
+
+        const dataDistributionChart = new Chart(dataDistributionCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Valid', 'Invalid'],
+                datasets: [{
+                    data: [0, 0],
+                    backgroundColor: ['#28a745', '#dc3545']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        const pageDistributionChart = new Chart(pageDistributionCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Extractions per Page',
+                    data: [],
+                    backgroundColor: '#0d6efd'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Fetch and display data
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/dashboard-data');
+                const data = await response.json();
+
+                if (data.success) {
+                    updateSummaryCards(data.summary);
+                    updateCharts(data);
+                    updateDataTable(data.data);
+                } else {
+                    console.error('Failed to load dashboard data:', data.error);
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        function updateSummaryCards(summary) {
+            document.getElementById('totalExtractions').textContent = summary.total;
+            document.getElementById('validData').textContent = summary.valid;
+            document.getElementById('invalidData').textContent = summary.invalid;
+            document.getElementById('successRate').textContent = summary.success_rate + '%';
+        }
+
+        function updateCharts(data) {
+            // Update data distribution chart
+            dataDistributionChart.data.datasets[0].data = [data.summary.valid, data.summary.invalid];
+            dataDistributionChart.update();
+
+            // Update page distribution chart
+            const pageData = {};
+            data.data.forEach(item => {
+                pageData[item.page] = (pageData[item.page] || 0) + 1;
+            });
+
+            pageDistributionChart.data.labels = Object.keys(pageData).sort((a, b) => a - b);
+            pageDistributionChart.data.datasets[0].data = Object.values(pageData);
+            pageDistributionChart.update();
+        }
+
+        function updateDataTable(data) {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = item.status === 'correct' ? 'valid-row' : 'invalid-row';
+                row.innerHTML = `
+                    <td>${item.value}</td>
+                    <td>${item.page}</td>
+                    <td>${item.status}</td>
+                    <td>${item.validation_message || '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
+    </script>
+</body>
+</html> 
