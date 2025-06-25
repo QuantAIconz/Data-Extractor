@@ -4,6 +4,9 @@ phonenumbers==8.13.0
 email-validator==2.0.0
 nameparser==1.1.0
 requests==2.31.0
-pandas==2.0.3
+pandas==1.5.3
+numpy==1.23.5
 PyMuPDF==1.22.5
-Werkzeug==2.0.1 
+Werkzeug==2.0.1
+spacy
+plotly 
