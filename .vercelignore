@@ -1,0 +1,10 @@
+venv/
+venv-extractor/
+__pycache__/
+uploads/
+.DS_Store
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3 
