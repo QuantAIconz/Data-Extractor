@@ -6,4 +6,5 @@ nameparser==1.1.0
 requests==2.31.0
 pandas==2.0.3
 PyMuPDF==1.22.5
-Werkzeug==2.0.1 
+Werkzeug==2.0.1
+gunicorn==21.2.0
