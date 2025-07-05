@@ -4,8 +4,8 @@ phonenumbers==8.13.0
 email-validator==2.0.0
 nameparser==1.1.0
 requests==2.31.0
-pandas==2.0.3
-PyMuPDF==1.22.5
+pandas==2.2.0
+PyMuPDF==1.23.26
 Werkzeug==3.0.1
 gunicorn==21.2.0
-apscheduler==3.10.4
+apscheduler==3.11.0
