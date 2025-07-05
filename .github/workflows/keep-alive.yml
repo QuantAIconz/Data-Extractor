@@ -2,8 +2,8 @@ name: Keep Alive
 
 on:
   schedule:
-    # Run every 10 minutes
-    - cron: "*/10 * * * *"
+    # Run every 2 minutes (GitHub Actions minimum interval)
+    - cron: "*/2 * * * *"
   workflow_dispatch: # Allow manual trigger
 
 jobs:

@@ -74,8 +74,8 @@ def keep_alive_ping():
     except Exception as e:
         logger.warning(f"Keep-alive ping failed: {str(e)}")
 
-# Schedule keep-alive ping every 10 minutes
-scheduler.add_job(func=keep_alive_ping, trigger="interval", minutes=10, id="keep_alive")
+# Schedule keep-alive ping every 30 seconds
+scheduler.add_job(func=keep_alive_ping, trigger="interval", seconds=30, id="keep_alive")
 
 def validate_and_format_full_name(name):
     try:

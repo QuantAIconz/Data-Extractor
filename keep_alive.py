@@ -28,12 +28,12 @@ def main():
     app_url = os.environ.get('APP_URL', 'https://your-app-name.onrender.com')
     
     print(f"🚀 Starting keep-alive script for: {app_url}")
-    print(f"⏰ Will ping every 10 minutes to keep the service alive")
+    print(f"⏰ Will ping every 30 seconds to keep the service alive")
     
     while True:
         ping_health_endpoint(app_url)
-        # Wait 10 minutes (600 seconds) before next ping
-        time.sleep(600)
+        # Wait 30 seconds before next ping
+        time.sleep(30)
 
 if __name__ == "__main__":
     main() 
