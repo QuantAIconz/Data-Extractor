@@ -8,3 +8,4 @@ pandas==2.0.3
 PyMuPDF==1.22.5
 Werkzeug==3.0.1
 gunicorn==21.2.0
+apscheduler==3.10.4

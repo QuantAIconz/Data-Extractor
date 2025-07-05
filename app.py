@@ -14,6 +14,8 @@ from nameparser import HumanName
 import requests
 import logging
 import spacy
+from apscheduler.schedulers.background import BackgroundScheduler
+import threading
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -57,6 +59,23 @@ except OSError:
     import subprocess
     subprocess.run(['python', '-m', 'spacy', 'download', 'en_core_web_sm'])
     nlp = spacy.load('en_core_web_sm')
+
+# Initialize scheduler for keep-alive
+scheduler = BackgroundScheduler()
+scheduler.start()
+
+def keep_alive_ping():
+    """Ping the health endpoint to keep the service alive"""
+    try:
+        # Get the app URL from environment or use a default
+        app_url = os.environ.get('RENDER_EXTERNAL_URL', 'http://localhost:5000')
+        response = requests.get(f"{app_url}/health", timeout=5)
+        logger.info(f"Keep-alive ping successful: {response.status_code}")
+    except Exception as e:
+        logger.warning(f"Keep-alive ping failed: {str(e)}")
+
+# Schedule keep-alive ping every 10 minutes
+scheduler.add_job(func=keep_alive_ping, trigger="interval", minutes=10, id="keep_alive")
 
 def validate_and_format_full_name(name):
     try:
@@ -331,6 +350,15 @@ def landing():
 @app.route('/index')
 def index():
     return render_template('index.html')
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint to keep the service alive"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'service': 'Data-Extractor'
+    }), 200
 
 @app.route('/dashboard')
 def dashboard():

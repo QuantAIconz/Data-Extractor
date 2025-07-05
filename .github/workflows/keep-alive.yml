@@ -1,0 +1,18 @@
+name: Keep Alive
+
+on:
+  schedule:
+    # Run every 10 minutes
+    - cron: "*/10 * * * *"
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Health Endpoint
+        run: |
+          curl -f https://your-app-name.onrender.com/health || echo "Health check failed"
+        env:
+          # Add your app URL as a secret in GitHub repository settings
+          APP_URL: ${{ secrets.APP_URL }}
