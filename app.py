@@ -68,7 +68,7 @@ def keep_alive_ping():
     """Ping the health endpoint to keep the service alive"""
     try:
         # Get the app URL from environment or use a default
-        app_url = os.environ.get('RENDER_EXTERNAL_URL', 'http://localhost:5000')
+        app_url = os.environ.get('RENDER_EXTERNAL_URL', 'http://localhost:8000')
         response = requests.get(f"{app_url}/health", timeout=5)
         logger.info(f"Keep-alive ping successful: {response.status_code}")
     except Exception as e:
